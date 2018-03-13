@@ -36,15 +36,11 @@ module Spree::Chimpy
       private
 
       def upsert_variants
-        all_variants = @product.variants.any? ? @product.variants : [@product.master]
+        all_variants = @product.variants_including_master.with_deleted
         all_variants.each do |v|
           data = self.class.variant_hash(v)
-          data.delete(:id)
 
-          store_api_call
-            .products(v.product_id)
-            .variants(v.id)
-            .upsert(body: data)
+          store_api_call.products(v.product_id).variants(v.id).upsert(body: data)
         end
       end
 
@@ -64,7 +60,7 @@ module Spree::Chimpy
         # assign a default taxon if the product is not associated with a category
         taxon = root_taxon if taxon.blank?
 
-        all_variants = @product.variants.any? ? @product.variants : [@product.master]
+        all_variants = @product.variants_including_master.with_deleted
         data = {
           id: self.class.mailchimp_product_id(@variant),
           title: @product.name,
