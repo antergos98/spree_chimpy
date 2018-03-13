@@ -16,6 +16,7 @@ namespace :spree_chimpy do
       scope.find_in_batches do |batch|
         print '.'
         batch.each do |order|
+
           begin
             order.notify_mail_chimp
           rescue => exception

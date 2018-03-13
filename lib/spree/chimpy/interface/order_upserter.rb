@@ -23,11 +23,11 @@ module Spree::Chimpy
 
       def perform_upsert
         data = order_hash
-        log "Adding order #{@order.number} for #{data[:customer][:id]} with campaign #{data[:campaign_id]}"
+        puts "Adding order #{@order.number} for #{data[:customer][:id]} with campaign #{data[:campaign_id]}"
         begin
           find_and_update_order(data)
         rescue Gibbon::MailChimpError => e
-          log "Order #{@order.number} Not Found, creating order"
+          puts "Order #{@order.number} Not Found, creating order"
           create_order(data)
         end
       end
@@ -44,7 +44,7 @@ module Spree::Chimpy
           .orders
           .create(body: data)
       rescue Gibbon::MailChimpError => e
-        log "Unable to create order #{@order.number}. [#{e.raw_body}]"
+        puts "Unable to create order #{@order.number}. [#{e.raw_body}]"
       end
 
       def order_variant_hash(line_item)

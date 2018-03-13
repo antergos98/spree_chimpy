@@ -39,9 +39,8 @@ module Spree::Chimpy
       private
 
       def upsert_customer
-        return unless @order.user_id
 
-        customer_id = self.class.mailchimp_customer_id(@order.user_id)
+        customer_id = self.class.mailchimp_customer_id(@order.email.parameterize)
         begin
           response = store_api_call
             .customers(customer_id)
