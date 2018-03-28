@@ -1,6 +1,6 @@
 module Spree::Chimpy
   module Interface
-    class OrderUpserter
+    class CartUpserter
       delegate :log, :store_api_call, to: Spree::Chimpy
 
       def initialize(order)
@@ -12,6 +12,7 @@ module Spree::Chimpy
       end
 
       def upsert
+        byebug
         return unless customer_id
 
         Products.ensure_products(@order)
@@ -19,48 +20,32 @@ module Spree::Chimpy
         perform_upsert
       end
 
+      private
 
       def perform_upsert
         data = order_hash
         puts "Adding order #{@order.number} for #{data[:customer][:id]} with campaign #{data[:campaign_id]}"
-        delete_cart(data)
         begin
-          find_and_update_order(data)
+          find_and_update_cart(data)
         rescue Gibbon::MailChimpError => e
           puts "Order #{@order.number} Not Found, creating order"
-          create_order(data)
-        end
-
-
-      end
-      def delete_cart(data)
-        begin
-          find_and_delete_cart(data)
-        rescue Gibbon::MailChimpError => e
-          puts "Cart #{@order.number} Not Found, all is good in the hood"
+          create_cart(data)
         end
       end
 
-      def find_and_delete_cart(data)
+      def find_and_update_cart(data)
         # retrieval is checks if the order exists and raises a Gibbon::MailChimpError when not found
         response = store_api_call.carts(@order.number).retrieve(params: { "fields" => "id" })
-        log "Order #{@order.number} exists, deleting"
-        store_api_call.carts(@order.number).delete
+        log "Cart #{@order.number} exists, updating data"
+        store_api_call.carts(@order.number).update(body: data)
       end
 
-      def find_and_update_order(data)
-        # retrieval is checks if the order exists and raises a Gibbon::MailChimpError when not found
-        response = store_api_call.orders(@order.number).retrieve(params: { "fields" => "id" })
-        log "Order #{@order.number} exists, updating data"
-        store_api_call.orders(@order.number).update(body: data)
-      end
-
-      def create_order(data)
+      def create_cart(data)
         store_api_call
-          .orders
+          .carts
           .create(body: data)
       rescue Gibbon::MailChimpError => e
-        puts "Unable to create order #{@order.number}. [#{e.inspect}]"
+        puts "Unable to create order #{@order.number}. [#{e.raw_body}]"
       end
 
       def order_variant_hash(line_item)

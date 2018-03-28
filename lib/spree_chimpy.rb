@@ -49,6 +49,10 @@ module Spree::Chimpy
     @orders ||= Interface::Orders.new if configured?
   end
 
+  def carts
+    @carts ||= Interface::Carts.new if configured?
+  end
+
   def list_exists?
     list.list_id
   end
@@ -109,8 +113,18 @@ module Spree::Chimpy
     when defined?(::Delayed::Job)
       ::Delayed::Job.enqueue(payload_object: Spree::Chimpy::Workers::DelayedJob.new(payload),
                              run_at: Proc.new { 4.minutes.from_now })
-    when defined?(::Sidekiq)
-      Spree::Chimpy::Workers::Sidekiq.perform_in(4.minutes, payload.except(:object))
+      when defined?(::Sidekiq)
+
+        if id =  payload[:object].try(:last_task_id)
+          job = Sidekiq::ScheduledSet.new.find_job(id)
+          if job
+           job.delete
+          end
+
+        end
+      job_id = Spree::Chimpy::Workers::Sidekiq.perform_in(4.minutes, payload.except(:object))
+      payload[:object].try {|obj| obj.update_columns(last_task_id: job_id)}
+
     when defined?(::Resque)
       ::Resque.enqueue(Spree::Chimpy::Workers::Resque, payload.except(:object))
     else
@@ -127,6 +141,8 @@ module Spree::Chimpy
     case event
     when :order
       orders.sync(object)
+    when :cart
+      carts.sync(object)
     when :subscribe
       list.subscribe(object.email, merge_vars(object), customer: object.is_a?(Spree.user_class))
     when :unsubscribe

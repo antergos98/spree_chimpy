@@ -6,9 +6,17 @@ Spree::Order.class_eval do
   end
 
   around_save :handle_cancelation
+  after_save :setup_cart
+  after_touch :setup_cart
+
+
 
   def notify_mail_chimp
     Spree::Chimpy.enqueue(:order, self) if completed? && Spree::Chimpy.configured?
+  end
+
+  def setup_cart
+      Spree::Chimpy.enqueue(:cart, self) if !completed? && Spree::Chimpy.configured?
   end
 
 private
