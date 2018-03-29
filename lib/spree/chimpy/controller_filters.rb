@@ -13,13 +13,14 @@ module Spree::Chimpy
     attr_reader :mc_eid, :mc_cid
 
     def set_mailchimp_params
-      @mc_eid = params[:mc_eid] || session[:mc_eid]
-      @mc_cid = params[:mc_cid] || session[:mc_cid]
+      session[:mc_eid] = @mc_eid = params[:mc_eid] || session[:mc_eid]
+      session[:mc_cid] = @mc_cid = params[:mc_cid] || session[:mc_cid]
     end
 
     def mailchimp_params?
+
       (!mc_eid.nil? || !mc_cid.nil?) &&
-        (!session[:order_id].nil? || !params[:record_mc_details].nil?)
+        (!current_order.nil? || !params[:record_mc_details].nil?)
     end
 
     def find_mail_chimp_params

@@ -7,7 +7,6 @@ module Spree::Chimpy
       end
 
       def add(order)
-        byebug
         CartUpserter.new(order).upsert
       end
 
