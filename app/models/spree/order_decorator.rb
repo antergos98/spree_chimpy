@@ -16,7 +16,7 @@ Spree::Order.class_eval do
   end
 
   def setup_cart
-      Spree::Chimpy.enqueue(:cart, self) if !completed? && Spree::Chimpy.configured?
+      Spree::Chimpy.enqueue(:cart, self) if !completed? && line_items.any? && Spree::Chimpy.configured?
   end
 
 private
