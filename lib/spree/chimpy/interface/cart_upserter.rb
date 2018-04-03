@@ -12,7 +12,6 @@ module Spree::Chimpy
       end
 
       def upsert
-        byebug
         return unless customer_id
 
         Products.ensure_products(@order)
