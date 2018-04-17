@@ -13,6 +13,7 @@ module Spree::Chimpy
   end
 
   def enqueue(event, object)
+    return unless configured?
     payload = {class: object.class.name, id: object.id, object: object}
     ActiveSupport::Notifications.instrument("spree.chimpy.#{event}", payload)
   end
