@@ -73,6 +73,7 @@ module Spree::Chimpy
           financial_status:  @order.payment_state || "",
           fulfillment_status: @order.shipment_state || "",
           currency_code:     @order.currency,
+          checkout_path:       Spree::Chimpy::Config.checkout_path || ""
           processed_at_foreign:  @order.completed_at ? @order.completed_at.to_formatted_s(:db) : "",
           updated_at_foreign: @order.updated_at.to_formatted_s(:db),
           shipping_total:    @order.ship_total.to_f,
