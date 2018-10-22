@@ -137,8 +137,7 @@ module Spree::Chimpy
           .segments
           .retrieve(params: {"fields" => "segments.id,segments.name", count: 10000})
         segment = response["segments"].detect {|segment| segment['name'].downcase == @segment_name.downcase }
-        puts @segment_name
-        puts response
+      
 
         segment['id'] if segment
       end
