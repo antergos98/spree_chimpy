@@ -64,6 +64,7 @@ module Spree::Chimpy
 
   def segment_exists?
     puts list.inspect
+    
     list.segment_id
   end
 
@@ -105,7 +106,9 @@ module Spree::Chimpy
     puts "mange de la marde"
     puts list_exists?
     puts segment_enabled?
+
     puts !segment_exists?
+    puts"motherfucker"
     if list_exists? && segment_enabled? && !segment_exists?
       create_segment
       Rails.logger.error("spree_chimpy: hmm.. a static segment named `#{Config.customer_segment_name}` was not found. Creating it now")

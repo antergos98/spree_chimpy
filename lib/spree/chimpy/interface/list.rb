@@ -135,9 +135,10 @@ module Spree::Chimpy
       def find_segment_id
         response = api_list_call
           .segments
-          .retrieve(params: {"fields" => "segments.id,segments.name", count: 10000})
+          .retrieve(params: {"fields" => "segments.id,segments.name,segments.type,segments.created_at",since_created_at:"2018-10-21T15:41:36+00:00", type:"static", count: 100000})
+          
         segment = response["segments"].detect {|segment| segment['name'].downcase == @segment_name.downcase }
-      
+
 
         segment['id'] if segment
       end
