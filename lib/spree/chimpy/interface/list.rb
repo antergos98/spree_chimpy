@@ -125,7 +125,7 @@ module Spree::Chimpy
 
       def create_segment
         log "Creating segment #{@segment_name}"
-
+        byebug
         result = api_list_call.segments.create(body: { name: @segment_name, static_segment: []})
         @segment_id = result["id"]
       end
